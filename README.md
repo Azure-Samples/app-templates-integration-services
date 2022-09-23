@@ -1,4 +1,4 @@
-# Project Name
+# Integration Template
 
 (short, 1-3 sentenced, description of the project)
 
