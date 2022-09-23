@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SB_Integration_ComosDB": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7216",
+      "launchBrowser": false
+    }
+  }
+}
