@@ -14,7 +14,7 @@ Azure Services used:
 1. API Management
 1. Service Bus
 1. Function App
-1. Application Insights
+1. Application Insights (Function Execution)
 1. Storage Account
 1. Cosmos DB
 
