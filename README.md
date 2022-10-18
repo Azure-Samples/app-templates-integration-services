@@ -60,9 +60,11 @@ To check your subscription.
 az account show
 ```
 
-Run the deployment. The deployment will create the resource group "rg-\<Name suffix for resources\>". Make sure you are in the APIM-SB-ManageIdentity directory.
+Run the deployment. The deployment will create the resource group "rg-\<Name suffix for resources\>". Make sure you are in the 'app-templates-integration-services' directory.
 
 ```bash
+cd app-templates-integration-services
+
 az deployment sub create --name "<unique deployment name>" --location "<Your Chosen Location>" --template-file infra/main.bicep --parameters name="<Name suffix for resources>" publisherEmail="<Publisher Email for APIM>" publisherName="<Publisher Name for APIM>" 
 ```
 
