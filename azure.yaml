@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: app-templates-integration-services
+metadata:
+  template: IntegrationSample
+services:
+  sbtocosmos:
+    project: ./src
+    host: function

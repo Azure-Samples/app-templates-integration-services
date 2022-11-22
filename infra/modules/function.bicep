@@ -23,6 +23,8 @@ param appInsightsLocation string = resourceGroup().location
 ])
 param runtime string = 'dotnet'
 
+param tags object = {}
+
 var functionAppName = appName
 var hostingPlanName = appName
 var applicationInsightsName = appName
@@ -32,6 +34,7 @@ var functionWorkerRuntime = runtime
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
   name: storageAccountName
   location: location
+  tags: tags
   sku: {
     name: storageAccountType
   }
@@ -41,6 +44,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
 resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   name: hostingPlanName
   location: location
+  tags: tags
   sku: {
     name: 'Y1'
     tier: 'Dynamic'
@@ -52,6 +56,7 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName
   location: appInsightsLocation
+  tags: tags
   kind: 'web'
   properties: {
     Application_Type: 'web'
@@ -62,6 +67,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
   name: functionAppName
   location: location
+  tags: union(tags, { 'azd-service-name': 'sbtocosmos' })
   kind: 'functionapp'
   identity: {
     type: 'SystemAssigned'

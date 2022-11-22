@@ -12,9 +12,12 @@ param location string = resourceGroup().location
 ])
 param sku string = 'Basic'
 
+param tags object = {}
+
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-11-01' = {
   name: nameSpace
   location: location
+  tags: tags
   sku: {
     capacity: 1
     name: sku

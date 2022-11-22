@@ -10,9 +10,12 @@ param databaseName string = 'demo-database'
 @description('The name for the SQL API container')
 param containerName string = 'demo-container'
 
+param tags object = {}
+
 resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
   name: toLower(accountName)
   location: location
+  tags: tags
   properties: {
     databaseAccountOfferType: 'Standard'
     consistencyPolicy: {
