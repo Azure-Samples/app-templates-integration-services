@@ -42,9 +42,9 @@ Other potential extensions of this architecture are:
 
 ### Prerequisites
 
-1. Local bash shell with Azure CLI or [Azure Cloud Shell](https://ms.portal.azure.com/#cloudshell/)
+1. Azure CLI or [Azure Cloud Shell](https://ms.portal.azure.com/#cloudshell/)
+1. [Azure Developer CLI (Preview)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=baremetal%2Cwindows) 
 1. Azure Subscription. [Create one for free](https://azure.microsoft.com/en-us/free/).
-1. Clone or fork of this repository.
 
 ### Deploy
 
@@ -60,13 +60,18 @@ To check your subscription.
 az account show
 ```
 
-Run the deployment. The deployment will create the resource group "rg-\<Name suffix for resources\>". Make sure you are in the 'app-templates-integration-services' directory.
+Run the deployment using [Azure Developer CLI (Preview)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview). Azure Developer CLI is in preview so the below instructions may change.
 
 ```bash
-cd app-templates-integration-services
 
-az deployment sub create --name "<unique deployment name>" --location "<Your Chosen Location>" --template-file infra/main.bicep --parameters name="<Name suffix for resources>" publisherEmail="<Publisher Email for APIM>" publisherName="<Publisher Name for APIM>" 
+mkdir int-sample
+
+cd int-sample
+
+azd up -t https://github.com/Azure-Samples/app-templates-integration-services.git -b feature/azdevify
 ```
+Enter an environment name when prompted (e.g. int-test1). This name is used for the resource group and suffix for Azure resources deployed. Use a name with less than 16 characters.
+![](media/s11.png)
 
 The following deployments will run:
 
@@ -94,5 +99,6 @@ The following deployments will run:
 ## Disclaimer
 
 The code and deployment biceps are for demonstration purposes only.
+
 
 
