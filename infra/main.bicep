@@ -1,36 +1,33 @@
 targetScope = 'subscription'
 
-@minLength(1)
-@maxLength(16)
-@description('Prefix for all resources, i.e. {name}storage')
-param name string
 
-@minLength(1)
 @description('Primary location for all resources')
 param location string = deployment().location
 
-@description('The email address of the owner of the service')
+@description('The email address of the owner of the APIM service')
 @minLength(1)
 param publisherEmail string
 
-@description('The name of the owner of the service')
+@description('The name of the owner of the APIM service')
 @minLength(1)
 param publisherName string
 
+var templatename = 'IntegrationSample'
+var uniqueSuffix = substring(uniqueString(concat(subscription().id),templatename, location),0,6)
+
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rg-${name}'
+  name: 'rg-${templatename}-${uniqueSuffix}'
   location: location
   tags: {
     apptemplate: 'IntegrationSample'
   }
 }
 
-
 module apim './modules/apim.bicep' = {
   name: '${rg.name}-apim'
   scope: rg
   params: {
-    apimServiceName: 'apim-${toLower(name)}'
+    apimServiceName: 'apim-${toLower(uniqueSuffix)}'
     publisherEmail: publisherEmail
     publisherName: publisherName
     location: rg.location
@@ -41,7 +38,7 @@ module servicebus './modules/service-bus.bicep' = {
   name: '${rg.name}-servicebus'
   scope: rg
   params: {
-    nameSpace: 'sb-${toLower(name)}'
+    nameSpace: 'sb-${toLower(uniqueSuffix)}'
     location: rg.location
   }
 }
@@ -50,7 +47,7 @@ module cosmosdb './modules/cosmosdb.bicep' = {
   name: '${rg.name}-cosmosdb'
   scope: rg
   params: {
-    accountName: 'cosmos-${toLower(name)}'
+    accountName: 'cosmos-${toLower(uniqueSuffix)}'
     location: rg.location
   }
 }
@@ -59,7 +56,7 @@ module function './modules/function.bicep' = {
   name: '${rg.name}-function'
   scope: rg
   params: {
-    appName: 'func-${toLower(name)}'
+    appName: 'func-${toLower(uniqueSuffix)}'
     location: rg.location
     appInsightsLocation: rg.location
   }
