@@ -1,0 +1,25 @@
+{
+    "folders": [
+      {
+        "name": "Logic App",
+        "path": "src/LogicApp"
+      },
+      {
+        "name": "Function",
+        "path": "src/FunctionApp"
+      },
+      {
+        "name": "Infrastructure as Code",
+        "path": "infra"
+      }
+    ],
+    "settings": {
+      "azurite.location": "C:\\Users\\karlriss\\.azurelogicapps\\.azurite",
+      "terminal.integrated.env.windows": {
+        "PATH": "C:\\Users\\karlriss\\.azurelogicapps\\dependencies\\DotNetSDK;${env:PATH}"
+      },
+      "omnisharp.dotNetCliPaths": [
+        "C:\\Users\\karlriss\\.azurelogicapps\\dependencies\\DotNetSDK"
+      ]
+    }
+  }
