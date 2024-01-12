@@ -11,6 +11,10 @@
       {
         "name": "Infrastructure as Code",
         "path": "infra"
+      },
+      {
+        "name":"Documentation",
+        "path":"docs"
       }
     ],
     "settings": {
