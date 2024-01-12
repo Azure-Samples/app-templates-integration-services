@@ -1,16 +1,18 @@
 targetScope = 'subscription'
 
-
 @description('Primary location for all resources')
 param location string = deployment().location
 
 @description('The email address of the owner of the APIM service')
 @minLength(1)
-param publisherEmail string
+param publisherEmail string = 'integrationSampleUser@sample.com'
 
 @description('The name of the owner of the APIM service')
 @minLength(1)
-param publisherName string
+param publisherName string = 'Integration Sample User'
+
+param deploymentRepositoryUrl string = 'https://github.com/aarthiem/app-templates-integration-services.git'
+param deploymentBranch string = 'main'
 
 var templatename = 'IntegrationSample'
 var uniqueSuffix = substring(uniqueString(concat(subscription().id),templatename, location),0,6)
@@ -20,6 +22,37 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   location: location
   tags: {
     apptemplate: 'IntegrationSample'
+  }
+}
+
+module appInsights './modules/appinsights.bicep' = {
+  name: '${rg.name}-appinsights'
+  scope: rg
+  params: {
+    applicationInsightsName: 'appinsights-${toLower(uniqueSuffix)}'
+    logAnalyticsWorkspaceName: 'loganalytics-${toLower(uniqueSuffix)}'
+    location: rg.location
+  }
+}
+
+module logicApp './modules/logicapp.bicep' = {
+  name: '${rg.name}-logicapp'
+  scope: rg
+  params: {
+    appName: 'logicapp-${toLower(uniqueSuffix)}'
+    location: rg.location
+    appInsightsInstrumentationKey: appInsights.outputs.appInsightsInstrumentationKey
+  }
+}
+
+module function './modules/function.bicep' = {
+  name: '${rg.name}-function'
+  scope: rg
+  params: {
+    appName: 'func-${toLower(uniqueSuffix)}'
+    location: rg.location
+    applicationInsightsConnectionsString: appInsights.outputs.appInsightsConnectionString
+    applicationInsightsInstrumentationkey: appInsights.outputs.appInsightsInstrumentationKey
   }
 }
 
@@ -49,16 +82,6 @@ module cosmosdb './modules/cosmosdb.bicep' = {
   params: {
     accountName: 'cosmos-${toLower(uniqueSuffix)}'
     location: rg.location
-  }
-}
-
-module function './modules/function.bicep' = {
-  name: '${rg.name}-function'
-  scope: rg
-  params: {
-    appName: 'func-${toLower(uniqueSuffix)}'
-    location: rg.location
-    appInsightsLocation: rg.location
   }
 }
 
@@ -95,9 +118,28 @@ module configurFunctionAppSettings './modules/configure/configure-function.bicep
     functionAppName: function.outputs.functionAppName
     cosmosAccountName: cosmosdb.outputs.cosmosDBAccountName
     sbHostName: servicebus.outputs.sbHostName
+    deploymentRepositoryUrl: deploymentRepositoryUrl
+    deploymentBranch: deploymentBranch
   }
   dependsOn: [
     function
+    servicebus
+    cosmosdb
+  ]
+}
+
+module configurLogicAppSettings './modules/configure/configure-logicapp.bicep' = {
+  name: '${rg.name}-configureLogicApp'
+  scope: rg
+  params: {
+    logicAppName: logicApp.outputs.logicappAppName
+    cosmosAccountName: cosmosdb.outputs.cosmosDBAccountName
+    sbHostName: servicebus.outputs.sbHostName
+    deploymentRepositoryUrl: deploymentRepositoryUrl
+    deploymentBranch: deploymentBranch
+  }
+  dependsOn: [
+    logicApp
     servicebus
     cosmosdb
   ]

@@ -12,9 +12,6 @@ param storageAccountType string = 'Standard_LRS'
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-@description('Location for Application Insights')
-param appInsightsLocation string = resourceGroup().location
-
 @description('The language worker runtime to load in the function app.')
 @allowed([
   'node'
@@ -23,9 +20,12 @@ param appInsightsLocation string = resourceGroup().location
 ])
 param runtime string = 'dotnet'
 
+param applicationInsightsInstrumentationkey string
+param applicationInsightsConnectionsString string
+
 var functionAppName = appName
 var hostingPlanName = appName
-var applicationInsightsName = appName
+
 var storageAccountName = '${uniqueString(resourceGroup().id)}azfunctions'
 var functionWorkerRuntime = runtime
 
@@ -47,16 +47,6 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
     size: 'Y1'
   }
   properties: {}
-}
-
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: applicationInsightsName
-  location: appInsightsLocation
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    Request_Source: 'rest'
-  }
 }
 
 resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
@@ -88,15 +78,19 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: applicationInsights.properties.InstrumentationKey
+          value: applicationInsightsInstrumentationkey
         }
         {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: applicationInsights.properties.ConnectionString
+          value: applicationInsightsConnectionsString
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: functionWorkerRuntime
+        }
+        {
+          name:'PROJECT'
+          value: 'src/FunctionApp/SB-Integration-ComosDB.csproj'
         }
       ]
       ftpsState: 'FtpsOnly'
@@ -106,8 +100,6 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
     httpsOnly: true
   }
 }
-
-
 
 output functionAppName string = functionApp.name
 output functionResourceId string = functionApp.id

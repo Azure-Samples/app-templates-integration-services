@@ -11,13 +11,14 @@ param publisherName string
 
 @description('The pricing tier of this API Management service')
 @allowed([
+  'Consumption'
   'Developer'
   'Standard'
   'Premium'
 ])
-param sku string = 'Developer'
+param sku string = 'Consumption'
 
-@description('The instance size of this API Management service.')
+@description('The instance size of this API Management service. Set to zero for Consumption SKU')
 @allowed([
   1
   2
@@ -32,7 +33,8 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2021-12-01-previe
   location: location
   sku: {
     name: sku
-    capacity: skuCount
+    //capacity: skuCount
+    capacity: (sku=='Consumption' ? 0 : skuCount)
   }
   identity: {
     type: 'SystemAssigned'
