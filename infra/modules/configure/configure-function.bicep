@@ -35,7 +35,8 @@ module configurFunctionAppSettings './append-function-appsettings.bicep' = {
 }
 
 resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
-  name: '${functionAppInstance.name}/web'
+  name: 'web'
+  parent: functionAppInstance
   properties: {
     repoUrl: deploymentRepositoryUrl
     branch: deploymentBranch

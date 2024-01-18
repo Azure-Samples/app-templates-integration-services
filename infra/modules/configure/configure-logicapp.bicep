@@ -35,7 +35,8 @@ module configurLogicAppSettings './append-logicapp-appsettings.bicep' = {
 }
 
 resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
-  name: '${logicAppInstance.name}/web'
+  name: 'web'
+  parent: logicAppInstance
   properties: {
     repoUrl: deploymentRepositoryUrl
     branch: deploymentBranch
