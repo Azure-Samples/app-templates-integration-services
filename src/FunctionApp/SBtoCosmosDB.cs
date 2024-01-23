@@ -6,8 +6,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights; //added
+using Microsoft.ApplicationInsights.DataContracts; //added
 
 namespace SB_Integration_ComosDB
 {
@@ -24,14 +24,17 @@ namespace SB_Integration_ComosDB
         [FunctionName("SBtoCosmosDB")]
         public async Task Run([ServiceBusTrigger("demo-queue", Connection = "SBConnectionString")]string myQueueItem,
             [CosmosDB(
-        databaseName: "demo-database",
-        collectionName: "demo-container",
-        CreateIfNotExists = true,
-        ConnectionStringSetting = "CosmosDbConnectionString")]IAsyncCollector<dynamic> documentsOut,
+                databaseName: "demo-database",
+                collectionName: "demo-container",
+                CreateIfNotExists = true,
+                ConnectionStringSetting = "CosmosDbConnectionString")]IAsyncCollector<dynamic> documentsOut,
+            string correlationId, //added
             ILogger log)
         {
 
             var telemetry = new TraceTelemetry($"Processing Service Bus Message: {myQueueItem}", SeverityLevel.Information); //added
+
+
             _telemetryClient.TrackTrace(telemetry); //added
 
             if (IsValidJsonString(myQueueItem, log))
