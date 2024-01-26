@@ -65,7 +65,7 @@ Run the deployment. The deployment will create the resource group "rg-\<Name suf
 ```bash
 cd app-templates-integration-services
 
-az deployment sub create --name "<unique deployment name>" --location "<Your Chosen Location>" --template-file infra/main.bicep --parameters name="<Name suffix for resources>" publisherEmail="<Publisher Email for APIM>" publisherName="<Publisher Name for APIM>" 
+az deployment sub create --location "<Your Chosen Location>" --template-file infra/main.bicep
 ```
 
 The following deployments will run:
