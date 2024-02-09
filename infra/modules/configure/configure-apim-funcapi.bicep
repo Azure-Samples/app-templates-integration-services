@@ -41,6 +41,9 @@ resource func_apiOperation 'Microsoft.ApiManagement/service/apis/operations@2021
 resource funcOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2021-12-01-preview' = {
   name:'policy'
   parent: func_apiOperation
+  dependsOn: [
+    func_BackendService
+  ]
   properties: {
     format: 'rawxml'
     value: loadTextContent('./policies/apimpolicy-function.xml')

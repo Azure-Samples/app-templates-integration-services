@@ -9,9 +9,6 @@ param publisherEmail string
 @minLength(1)
 param publisherName string
 
-// @description('The Service Bus endpoint')
-// param sbEndpoint string
-
 @description('The function name')
 param functionName string
 
@@ -54,18 +51,6 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2021-12-01-previe
     publisherName: publisherName
   }
 }
-
-// module configurApimSbApi './configure/configure-apim-sbapi.bicep' = {
-//   name: '${rg.name}-configureAPIM-sbApi'
-//   //scope: rg
-//   params: {
-//     apimServiceName: apimServiceName
-//     sbEndpoint: sbEndpoint
-//   }
-//   dependsOn: [
-//     apiManagementService
-//   ]
-// }
 
 module configurApimFuncApi './configure/configure-apim-funcapi.bicep' = {
   name: '${rg.name}-configureAPIM-funcApi'

@@ -64,7 +64,6 @@ module apim './modules/apim.bicep' = {
     publisherEmail: publisherEmail
     publisherName: publisherName
     location: rg.location
-    //sbEndpoint: servicebus.outputs.sbEndpoint
     functionKey: function.outputs.functionKey  //update to secure string at some point
     functionName: function.outputs.functionAppName
   }
