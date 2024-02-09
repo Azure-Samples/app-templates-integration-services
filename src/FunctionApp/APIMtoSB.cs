@@ -19,7 +19,7 @@ namespace SB_Integration_ComosDB
         [FunctionName("APIMtoSB")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
-            [ServiceBus("testqueue", Connection = "sbConnString")] IAsyncCollector<ServiceBusMessage> outputQueueItem,
+            [ServiceBus("%queueName%", Connection = "sbConnString")] IAsyncCollector<ServiceBusMessage> outputQueueItem,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");

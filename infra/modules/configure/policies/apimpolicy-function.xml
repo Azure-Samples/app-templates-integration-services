@@ -1,0 +1,30 @@
+<policies>
+    <inbound>
+        <base />
+        <set-variable name="callerTrackingId" value="@(Guid.NewGuid().ToString())" />
+        <set-backend-service backend-id="function-backend" />
+        <set-header name="callerTrackingId" exists-action="override">
+            <value>@((string)context.Variables["callerTrackingId"])</value>
+        </set-header>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+        <return-response>
+            <set-status code="201" reason="OK" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-body template="liquid">
+            {
+                "callerTrackingId":"{{context.Variables["callerTrackingId"]}}"
+            }
+            </set-body>
+        </return-response>
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

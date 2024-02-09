@@ -101,5 +101,8 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
   }
 }
 
+var functionkeys = functionApp.listKeys().functionKeys.default //note, this should be moved so we don't output a secret
+
 output functionAppName string = functionApp.name
 output functionResourceId string = functionApp.id
+output functionKey string = functionkeys

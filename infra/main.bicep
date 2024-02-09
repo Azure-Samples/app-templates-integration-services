@@ -60,10 +60,13 @@ module apim './modules/apim.bicep' = {
   name: '${rg.name}-apim'
   scope: rg
   params: {
-    apimServiceName: 'apim-${toLower(uniqueSuffix)}'
+    apimServiceName: 'apim3-${toLower(uniqueSuffix)}' //testing, remove the 3 later - Soft Delete issue
     publisherEmail: publisherEmail
     publisherName: publisherName
     location: rg.location
+    //sbEndpoint: servicebus.outputs.sbEndpoint
+    functionKey: function.outputs.functionKey  //update to secure string at some point
+    functionName: function.outputs.functionAppName
   }
 }
 
@@ -120,6 +123,7 @@ module configurFunctionAppSettings './modules/configure/configure-function.bicep
     sbHostName: servicebus.outputs.sbHostName
     deploymentRepositoryUrl: deploymentRepositoryUrl
     deploymentBranch: deploymentBranch
+    sbConnString: servicebus.outputs.sbConnString
   }
   dependsOn: [
     function
@@ -145,21 +149,10 @@ module configurLogicAppSettings './modules/configure/configure-logicapp.bicep' =
   ]
 }
 
-module configurAPIM './modules/configure/configure-apim.bicep' = {
-  name: '${rg.name}-configureAPIM'
-  scope: rg
-  params: {
-    apimServiceName: apim.outputs.apimServiceName
-    sbEndpoint: servicebus.outputs.sbEndpoint
-  }
-  dependsOn: [
-    apim
-  ]
-}
-
 //  Telemetry Deployment
 @description('Enable usage and telemetry feedback to Microsoft.')
 param enableTelemetry bool = true
+
 var telemetryId = '69ef933a-eff0-450b-8a46-331cf62e160f-apptemp-${location}'
 resource telemetrydeployment 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry) {
   name: telemetryId
