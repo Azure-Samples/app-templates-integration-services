@@ -26,6 +26,7 @@ var customAppSettings = {
   SBConnectionString__fullyQualifiedNamespace: sbHostName
   queueName: 'demo-queue'
   sbConnString: sbConnString
+  sometest: 'sometestvalue'
 }
 
 var currentAppSettings = list('${functionAppInstance.id}/config/appsettings', '2021-02-01').properties

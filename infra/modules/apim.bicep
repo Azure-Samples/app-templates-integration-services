@@ -12,8 +12,8 @@ param publisherName string
 @description('The function name')
 param functionName string
 
-@description('The function key')
-param functionKey string
+// @description('The function key')
+// param functionKey string
 
 @description('The pricing tier of this API Management service')
 @allowed([
@@ -57,7 +57,7 @@ module configurApimFuncApi './configure/configure-apim-funcapi.bicep' = {
   //scope: rg
   params: {
     apimServiceName: apimServiceName
-    functionApiKey: functionKey
+    //functionApiKey: functionKey
     functionAppName: functionName
   }
   dependsOn: [

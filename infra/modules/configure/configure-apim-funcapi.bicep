@@ -4,11 +4,26 @@ param apimServiceName string
 @description('The name of the Function App')
 param functionAppName string
 
-@description('API Key for the function')
-param functionApiKey string
+// @description('API Key for the function')
+// param functionApiKey string
 
 var subscriptionId = subscription().subscriptionId
 var resourceGroupName = resourceGroup().name
+
+resource functionApp 'Microsoft.Web/sites@2022-09-01' existing = {
+  name: functionAppName
+}
+
+//NOTE: this doesn't feel right but I couldn't find another way to get the keys
+//Should switch over to managed identities instead, but am running out of time
+//So will have to make the change prior to pushing to the main repo.
+resource functionAppHost 'Microsoft.Web/sites/host@2022-09-01' existing = {
+  name: 'default'
+  parent: functionApp
+}
+
+// Master key
+var functionApiKey = functionAppHost.listKeys().masterKey
 
 resource apimInstance 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
   name: apimServiceName
