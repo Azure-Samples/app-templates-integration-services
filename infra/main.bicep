@@ -65,6 +65,7 @@ module apim './modules/apim.bicep' = {
     publisherName: publisherName
     location: rg.location
     //functionKey: function.outputs.functionKey  //update to secure string at some point
+    appInsightsName: appInsights.outputs.applicationInsightsName
     functionName: function.outputs.functionAppName
   }
 }

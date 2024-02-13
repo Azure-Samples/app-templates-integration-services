@@ -4,8 +4,8 @@ param apimServiceName string
 @description('The name of the Function App')
 param functionAppName string
 
-// @description('API Key for the function')
-// param functionApiKey string
+@description('id of the app insights logger')
+param loggerId string
 
 var subscriptionId = subscription().subscriptionId
 var resourceGroupName = resourceGroup().name
@@ -98,6 +98,52 @@ resource func_BackendService 'Microsoft.ApiManagement/service/backends@2021-12-0
       validateCertificateChain: false
       validateCertificateName: false
     }
+  }
+}
+
+//wire up app insights to apim api
+resource func_apiOperation_applicationinsights_wireup 'Microsoft.ApiManagement/service/apis/diagnostics@2023-03-01-preview' = {
+  parent: func_api //this is the API
+  name: 'applicationinsights'
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    verbosity: 'verbose'
+    logClientIp: true
+    loggerId: loggerId
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+    frontend: {
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+    }
+    backend: {
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+    }
+    metrics: true
   }
 }
 
