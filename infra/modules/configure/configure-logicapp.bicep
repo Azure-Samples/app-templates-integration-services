@@ -18,9 +18,14 @@ resource cosmosDBInstance 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' exi
   name: cosmosAccountName
 }
 
+resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
+  name: sbHostName
+}
+
 var customAppSettings = {
-  CosmosDbConnectionString: cosmosDBInstance.listConnectionStrings().connectionStrings[0].connectionString
+  AzureCosmosDB_connectionString: cosmosDBInstance.listConnectionStrings().connectionStrings[0].connectionString
   SBConnectionString__fullyQualifiedNamespace: sbHostName
+  serviceBus_connectionString: serviceBusNamespace.listConnectionStrings().primaryConnectionString
 }
 
 var currentAppSettings = list('${logicAppInstance.id}/config/appsettings', '2021-02-01').properties
