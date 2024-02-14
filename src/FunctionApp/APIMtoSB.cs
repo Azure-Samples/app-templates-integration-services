@@ -27,21 +27,39 @@ namespace SB_Integration_ComosDB
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
             log.LogInformation("Logging a custom trace message......");
-            
+
             // Iterate over all query strings
-            foreach (var query in req.Query)
+            // foreach (var query in req.Query)
+            // {
+            //     log.LogInformation($"Query: {query.Key} = {query.Value}");
+            //     log.LogTrace(query.Key, query.Value.ToString());
+            //     log.BeginScope(query.Key, query.Value.ToString());
+            // }
+
+            using (log.BeginScope(req.Headers))
             {
-                log.LogInformation($"Query: {query.Key} = {query.Value}");
-                log.LogTrace(query.Key, query.Value.ToString());
+                log.LogInformation("Headers received by function");
+            }
+
+            using (log.BeginScope(req.Query))
+            {
+                log.LogInformation("Query strings received by function");
             }
 
             // Iterate over all headers
-            foreach (var header in req.Headers)
+            // foreach (var header in req.Headers)
+            // {
+            //     log.LogInformation($"Header: {header.Key} = {header.Value}");
+            //     log.LogTrace(header.Key, header.Value.ToString());
+            // }
+
+            string callerTrackingId = "";
+            if(string.IsNullOrEmpty(req.Headers["callerTrackingId"].ToString()))
             {
-                log.LogInformation($"Header: {header.Key} = {header.Value}");
-                log.LogTrace(header.Key, header.Value.ToString());
+                callerTrackingId = req.Headers["callerTrackingId"];
             }
 
+            
             //Create a new message
             var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(requestBody));
 
@@ -49,19 +67,12 @@ namespace SB_Integration_ComosDB
             message.ApplicationProperties.Add("CustomProperty1", "Value1");
             message.ApplicationProperties.Add("CustomProperty2", "Value2");
             message.ApplicationProperties.Add("CustomProperty3", "Value3");
-
-            
-
-            // Log the message properties as individual log entries.
-            foreach (var property in message.ApplicationProperties)
-            {
-                log.LogInformation("Property: {Key}, Value: {Value}", property.Key, property.Value);
-            }
+            message.ApplicationProperties.Add("callerTrackingId", callerTrackingId);
 
             // Log the message properties as a single log entry.
             using (log.BeginScope(message.ApplicationProperties))
             {
-                log.LogInformation("Received Service Bus message with properties");
+                log.LogInformation("Properties set on service bus message");
             }
 
             await outputQueueItem.AddAsync(message);
