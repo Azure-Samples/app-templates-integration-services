@@ -86,7 +86,7 @@ resource func_BackendService 'Microsoft.ApiManagement/service/backends@2021-12-0
     func_NameValue
   ]
   properties: {
-    url: 'https://func-4z34nm.azurewebsites.net/api/APIMtoSB' //this will need to be parameterized
+    url: 'https://${functionAppName}.azurewebsites.net/api/APIMtoSB'
     protocol: 'http'
     resourceId: 'https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Web/sites/${functionAppName}'
     credentials: {

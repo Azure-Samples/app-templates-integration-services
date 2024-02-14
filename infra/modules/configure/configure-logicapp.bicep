@@ -10,6 +10,8 @@ param sbHostName string
 param deploymentRepositoryUrl string
 param deploymentBranch string
 
+param sbConnString string
+
 resource logicAppInstance 'Microsoft.Web/sites@2021-03-01' existing = {
   name: logicAppName
 }
@@ -18,14 +20,14 @@ resource cosmosDBInstance 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' exi
   name: cosmosAccountName
 }
 
-resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
-  name: sbHostName
-}
+// resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
+//   name: sbHostName
+// }
 
 var customAppSettings = {
   AzureCosmosDB_connectionString: cosmosDBInstance.listConnectionStrings().connectionStrings[0].connectionString
   SBConnectionString__fullyQualifiedNamespace: sbHostName
-  serviceBus_connectionString: 'placeholder' //serviceBusNamespace.listConnectionStrings().primaryConnectionString
+  serviceBus_connectionString: sbConnString
 }
 
 var currentAppSettings = list('${logicAppInstance.id}/config/appsettings', '2021-02-01').properties

@@ -151,6 +151,7 @@ module configurLogicAppSettings './modules/configure/configure-logicapp.bicep' =
     sbHostName: servicebus.outputs.sbHostName
     deploymentRepositoryUrl: deploymentRepositoryUrl
     deploymentBranch: deploymentBranch
+    sbConnString: servicebus.outputs.sbConnString
   }
   dependsOn: [
     logicApp
