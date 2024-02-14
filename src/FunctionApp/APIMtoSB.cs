@@ -26,6 +26,22 @@ namespace SB_Integration_ComosDB
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
+            log.LogInformation("Logging a custom trace message......");
+            
+            // Iterate over all query strings
+            foreach (var query in req.Query)
+            {
+                log.LogInformation($"Query: {query.Key} = {query.Value}");
+                log.LogTrace(query.Key, query.Value.ToString());
+            }
+
+            // Iterate over all headers
+            foreach (var header in req.Headers)
+            {
+                log.LogInformation($"Header: {header.Key} = {header.Value}");
+                log.LogTrace(header.Key, header.Value.ToString());
+            }
+
             //Create a new message
             var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(requestBody));
 
@@ -34,7 +50,7 @@ namespace SB_Integration_ComosDB
             message.ApplicationProperties.Add("CustomProperty2", "Value2");
             message.ApplicationProperties.Add("CustomProperty3", "Value3");
 
-            log.LogInformation("Logging a custom trace message......");
+            
 
             // Log the message properties as individual log entries.
             foreach (var property in message.ApplicationProperties)
