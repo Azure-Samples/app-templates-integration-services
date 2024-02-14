@@ -6,9 +6,10 @@
         <set-header name="callerTrackingId" exists-action="override">
             <value>@((string)context.Variables["callerTrackingId"])</value>
         </set-header>
-        <emit-metric name="callerTrackingId">
-            <dimension name="id" value="@((string)context.Variables["callerTrackingId"])" />
-        </emit-metric>
+        <trace source="arbitrary string literal">
+            <message>callerTrackingId</message>
+            <metadata name="id" value="@((string)context.Variables["callerTrackingId"])" />
+        </trace>
     </inbound>
     <backend>
         <base />
