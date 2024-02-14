@@ -11,6 +11,7 @@ using Azure.Messaging.ServiceBus;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using System.Text;
+using System.Collections.Generic;
 
 namespace SB_Integration_ComosDB
 {
@@ -26,7 +27,7 @@ namespace SB_Integration_ComosDB
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-            log.LogInformation("Logging a custom trace message......");
+            //log.LogInformation("Logging a custom trace message......");
 
             // Iterate over all query strings
             // foreach (var query in req.Query)
@@ -36,7 +37,24 @@ namespace SB_Integration_ComosDB
             //     log.BeginScope(query.Key, query.Value.ToString());
             // }
 
-            using (log.BeginScope(req.Headers))
+            var nameValueDictionary = new Dictionary<string, string>();
+
+
+            //Iterate over all headers
+            foreach (var header in req.Headers)
+            {
+                log.LogInformation($"Header: {header.Key} = {header.Value}");
+                log.LogTrace(header.Key, header.Value.ToString());
+                nameValueDictionary.Add(header.Key, header.Value.ToString());
+            }
+
+            string callerTrackingId = "";
+            if(string.IsNullOrEmpty(req.Headers["callerTrackingId"].ToString()))
+            {
+                callerTrackingId = req.Headers["callerTrackingId"];
+            }
+
+            using (log.BeginScope(nameValueDictionary))
             {
                 log.LogInformation("Headers received by function");
             }
@@ -45,21 +63,6 @@ namespace SB_Integration_ComosDB
             {
                 log.LogInformation("Query strings received by function");
             }
-
-            // Iterate over all headers
-            // foreach (var header in req.Headers)
-            // {
-            //     log.LogInformation($"Header: {header.Key} = {header.Value}");
-            //     log.LogTrace(header.Key, header.Value.ToString());
-            // }
-
-            string callerTrackingId = "";
-            if(string.IsNullOrEmpty(req.Headers["callerTrackingId"].ToString()))
-            {
-                callerTrackingId = req.Headers["callerTrackingId"];
-            }
-
-            
             //Create a new message
             var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(requestBody));
 
