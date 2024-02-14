@@ -38,6 +38,11 @@ module appInsights './modules/appinsights.bicep' = {
 module logicApp './modules/logicapp.bicep' = {
   name: '${rg.name}-logicapp'
   scope: rg
+  dependsOn: [
+    appInsights
+    servicebus
+    cosmosdb
+  ]
   params: {
     appName: 'logicapp-${toLower(uniqueSuffix)}'
     location: rg.location
@@ -48,6 +53,11 @@ module logicApp './modules/logicapp.bicep' = {
 module function './modules/function.bicep' = {
   name: '${rg.name}-function'
   scope: rg
+  dependsOn: [
+    appInsights
+    servicebus
+    cosmosdb
+  ]
   params: {
     appName: 'func-${toLower(uniqueSuffix)}'
     location: rg.location
@@ -60,7 +70,7 @@ module apim './modules/apim.bicep' = {
   name: '${rg.name}-apim'
   scope: rg
   params: {
-    apimServiceName: 'apim3-${toLower(uniqueSuffix)}' //testing, remove the 3 later - Soft Delete issue
+    apimServiceName: 'apim4-${toLower(uniqueSuffix)}' //testing, remove the # later - Soft Delete issue
     publisherEmail: publisherEmail
     publisherName: publisherName
     location: rg.location
@@ -88,31 +98,31 @@ module cosmosdb './modules/cosmosdb.bicep' = {
   }
 }
 
-module roleAssignmentAPIMSenderSB './modules/configure/roleAssign-apim-service-bus.bicep' = {
-  name: '${rg.name}-roleAssignmentAPIMSB'
-  scope: rg
-  params: {
-    apimServiceName: apim.outputs.apimServiceName
-    sbNameSpace: servicebus.outputs.sbNameSpace
-  }
-  dependsOn: [
-    apim
-    servicebus
-  ]
-}
+// module roleAssignmentAPIMSenderSB './modules/configure/roleAssign-apim-service-bus.bicep' = {
+//   name: '${rg.name}-roleAssignmentAPIMSB'
+//   scope: rg
+//   params: {
+//     apimServiceName: apim.outputs.apimServiceName
+//     sbNameSpace: servicebus.outputs.sbNameSpace
+//   }
+//   dependsOn: [
+//     apim
+//     servicebus
+//   ]
+// }
 
-module roleAssignmentFcuntionReceiverSB './modules/configure/roleAssign-function-service-bus.bicep' = {
-  name: '${rg.name}-roleAssignmentFunctionSB'
-  scope: rg
-  params: {
-    functionAppName: function.outputs.functionAppName
-    sbNameSpace: servicebus.outputs.sbNameSpace
-  }
-  dependsOn: [
-    function
-    servicebus
-  ]
-}
+// module roleAssignmentFcuntionReceiverSB './modules/configure/roleAssign-function-service-bus.bicep' = {
+//   name: '${rg.name}-roleAssignmentFunctionSB'
+//   scope: rg
+//   params: {
+//     functionAppName: function.outputs.functionAppName
+//     sbNameSpace: servicebus.outputs.sbNameSpace
+//   }
+//   dependsOn: [
+//     function
+//     servicebus
+//   ]
+// }
 
 module configurFunctionAppSettings './modules/configure/configure-function.bicep' = {
   name: '${rg.name}-configureFunction'

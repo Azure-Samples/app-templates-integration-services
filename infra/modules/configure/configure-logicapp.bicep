@@ -25,7 +25,7 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-11-01' existi
 var customAppSettings = {
   AzureCosmosDB_connectionString: cosmosDBInstance.listConnectionStrings().connectionStrings[0].connectionString
   SBConnectionString__fullyQualifiedNamespace: sbHostName
-  serviceBus_connectionString: serviceBusNamespace.listConnectionStrings().primaryConnectionString
+  serviceBus_connectionString: 'placeholder' //serviceBusNamespace.listConnectionStrings().primaryConnectionString
 }
 
 var currentAppSettings = list('${logicAppInstance.id}/config/appsettings', '2021-02-01').properties
