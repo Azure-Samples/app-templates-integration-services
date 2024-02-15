@@ -46,19 +46,21 @@ namespace SB_Integration_ComosDB
                 log.LogInformation("test log message with scope using dictionary");
             }
 
+            log.LogTrace("LogTraceTest with dictionary", nameValueDictionary);   
+
+            log.LogTrace("LogTraceTest with {string}", "string value");
+
+            log.LogTrace("LogTraceTest with json string", "{ \"Key3\": \"Value3\", \"Key4\": \"Value4\" }");       
+
 
             //Iterate over all headers
-            foreach (var header in req.Headers) //this logs each of the headers... 
-            {
-                log.LogInformation($"Header: {header.Key} = {header.Value}");
-                log.LogTrace("LogTraceTest", "LogTraceTestValue");         //this doesn't seem to be working
-            }
+            // foreach (var header in req.Headers) //this logs each of the headers... 
+            // {
+            //     log.LogInformation($"Header: {header.Key} = {header.Value}");
+            //     log.LogTrace("LogTraceTest", "LogTraceTestValue");         //this doesn't seem to be working
+            // }
 
-            string callerTrackingId = "";
-            if(string.IsNullOrEmpty(req.Headers["callerTrackingId"].ToString())==false)  //logic is backwards... fix... should be if not empty
-            {
-                callerTrackingId = req.Headers["callerTrackingId"];
-            }
+
 
             // using (log.BeginScope(nameValueDictionary))  //doesn't show values
             // {
@@ -69,6 +71,14 @@ namespace SB_Integration_ComosDB
             // {
             //     log.LogInformation("Query strings received by function");
             // }
+
+            
+            //get the callerTrackingId from the header if it exists
+            string callerTrackingId = "";
+            if(string.IsNullOrEmpty(req.Headers["callerTrackingId"].ToString())==false) 
+            {
+                callerTrackingId = req.Headers["callerTrackingId"];
+            }
 
             //Create a new message
             var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(requestBody));
