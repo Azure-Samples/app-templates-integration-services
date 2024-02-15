@@ -38,28 +38,34 @@ namespace SB_Integration_ComosDB
             // }
 
             var nameValueDictionary = new Dictionary<string, string>();
+            nameValueDictionary.Add("Key1", "Value1");
+            nameValueDictionary.Add("Key2", "Value2");
+            nameValueDictionary.Add("KeyJSON", "{ \"Key3\": \"Value3\", \"Key4\": \"Value4\" }");
+            using (log.BeginScope(nameValueDictionary))  //doesn't show values
+            {
+                log.LogInformation("test log message with scope using dictionary");
+            }
 
 
             //Iterate over all headers
-            foreach (var header in req.Headers)
+            foreach (var header in req.Headers) //this logs each of the headers... 
             {
                 log.LogInformation($"Header: {header.Key} = {header.Value}");
-                log.LogTrace(header.Key, header.Value.ToString());
-                nameValueDictionary.Add(header.Key, header.Value.ToString());
+                log.LogTrace("LogTraceTest", "LogTraceTestValue");         //this doesn't seem to be working
             }
 
             string callerTrackingId = "";
-            if(string.IsNullOrEmpty(req.Headers["callerTrackingId"].ToString()))
+            if(string.IsNullOrEmpty(req.Headers["callerTrackingId"].ToString())==false)  //logic is backwards... fix... should be if not empty
             {
                 callerTrackingId = req.Headers["callerTrackingId"];
             }
 
-            using (log.BeginScope(nameValueDictionary))
+            using (log.BeginScope(nameValueDictionary))  //doesn't show values
             {
                 log.LogInformation("Headers received by function");
             }
 
-            using (log.BeginScope(req.Query))
+            using (log.BeginScope(req.Query))  //doesn't show values
             {
                 log.LogInformation("Query strings received by function");
             }
@@ -70,7 +76,7 @@ namespace SB_Integration_ComosDB
             message.ApplicationProperties.Add("CustomProperty1", "Value1");
             message.ApplicationProperties.Add("CustomProperty2", "Value2");
             message.ApplicationProperties.Add("CustomProperty3", "Value3");
-            message.ApplicationProperties.Add("callerTrackingId", callerTrackingId);
+            message.ApplicationProperties.Add("callerTrackingId", callerTrackingId);  //value showing empty
 
             // Log the message properties as a single log entry.
             using (log.BeginScope(message.ApplicationProperties))
