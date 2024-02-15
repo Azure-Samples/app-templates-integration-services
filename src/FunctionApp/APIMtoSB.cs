@@ -46,11 +46,11 @@ namespace SB_Integration_ComosDB
                 log.LogInformation("test log message with scope using dictionary");
             }
 
-            log.LogTrace("LogTraceTest with dictionary", nameValueDictionary);   
+            log.LogTrace(1,"LogTraceTest with dictionary", nameValueDictionary);   
 
-            log.LogTrace("LogTraceTest with {string}", "string value");
+            log.LogTrace(1, "LogTraceTest with {string}", "string value");
 
-            log.LogTrace("LogTraceTest with json string", "{ \"Key3\": \"Value3\", \"Key4\": \"Value4\" }");       
+            log.LogTrace(1, "LogTraceTest with json string", "{ \"Key3\": \"Value3\", \"Key4\": \"Value4\" }");       
 
 
             //Iterate over all headers
