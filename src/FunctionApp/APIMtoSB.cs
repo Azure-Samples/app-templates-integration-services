@@ -37,7 +37,7 @@ namespace SB_Integration_ComosDB
             //     log.BeginScope(query.Key, query.Value.ToString());
             // }
 
-            var nameValueDictionary = new Dictionary<string, string>();
+            var nameValueDictionary = new Dictionary<string, object>();
             nameValueDictionary.Add("Key1", "Value1");
             nameValueDictionary.Add("Key2", "Value2");
             nameValueDictionary.Add("KeyJSON", "{ \"Key3\": \"Value3\", \"Key4\": \"Value4\" }");
@@ -60,15 +60,16 @@ namespace SB_Integration_ComosDB
                 callerTrackingId = req.Headers["callerTrackingId"];
             }
 
-            using (log.BeginScope(nameValueDictionary))  //doesn't show values
-            {
-                log.LogInformation("Headers received by function");
-            }
+            // using (log.BeginScope(nameValueDictionary))  //doesn't show values
+            // {
+            //     log.LogInformation("Headers received by function");
+            // }
 
-            using (log.BeginScope(req.Query))  //doesn't show values
-            {
-                log.LogInformation("Query strings received by function");
-            }
+            // using (log.BeginScope(req.Query))  //doesn't show values
+            // {
+            //     log.LogInformation("Query strings received by function");
+            // }
+
             //Create a new message
             var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(requestBody));
 
