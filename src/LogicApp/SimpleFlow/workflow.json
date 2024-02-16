@@ -17,6 +17,23 @@
                         "serviceProviderId": "/serviceProviders/AzureCosmosDB"
                     }
                 },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Initialize_variable": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "CustomProperty1",
+                            "type": "string",
+                            "value": "@{triggerOutputs()?['body'].userProperties.customProperty1}\n"
+                        }
+                    ]
+                },
                 "runAfter": {}
             }
         },
@@ -35,6 +52,10 @@
                         "operationId": "receiveQueueMessages",
                         "serviceProviderId": "/serviceProviders/serviceBus"
                     }
+                },
+                "trackedProperties": {
+                    "customProperty1": "@triggerOutputs()?['body'].userProperties.customProperty1",
+                    "callerTrackingId": "@triggerOutputs()?['body'].userProperties.callerTrackingId"
                 },
                 "splitOn": "@triggerOutputs()?['body']"
             }

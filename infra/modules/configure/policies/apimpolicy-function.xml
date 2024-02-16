@@ -7,7 +7,7 @@
             <value>@((string)context.Variables["callerTrackingId"])</value>
         </set-header>
         <trace source="arbitrary string literal">
-            <message>callerTrackingId</message>
+            <message>callerTrackingId: @((string)context.Variables["callerTrackingId"])</message>
             <metadata name="id" value="@((string)context.Variables["callerTrackingId"])" />
         </trace>
     </inbound>
