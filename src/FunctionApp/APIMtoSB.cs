@@ -27,16 +27,6 @@ namespace SB_Integration_ComosDB
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-            //log.LogInformation("Logging a custom trace message......");
-
-            // Iterate over all query strings
-            // foreach (var query in req.Query)
-            // {
-            //     log.LogInformation($"Query: {query.Key} = {query.Value}");
-            //     log.LogTrace(query.Key, query.Value.ToString());
-            //     log.BeginScope(query.Key, query.Value.ToString());
-            // }
-
             var nameValueDictionary = new Dictionary<string, object>();
             nameValueDictionary.Add("Key1", "Value1");
             nameValueDictionary.Add("Key2", "Value2");
@@ -46,12 +36,12 @@ namespace SB_Integration_ComosDB
                 log.LogInformation("test log message with scope using dictionary");
             }
 
-            log.LogTrace(1,"LogTraceTest with dictionary", nameValueDictionary);   
-
-            log.LogTrace(1, "LogTraceTest with {string}", "string value");
-
-            log.LogTrace(1, "LogTraceTest with json string", "{ \"Key3\": \"Value3\", \"Key4\": \"Value4\" }");       
-
+            //Trace logs will only show up if you set the function logging level to Trace in the host.json file
+            //See this article for more info: https://stackoverflow.com/questions/63674551/cannot-see-trace-logs-when-loglevel-set-to-trace-in-azure-function
+            //The results of the logtrace call look the same as the logInformation call
+            // log.LogTrace(1,"LogTraceTest with dictionary", nameValueDictionary);   
+            // log.LogTrace(1, "LogTraceTest with {string}", "string value");
+            // log.LogTrace(1, "LogTraceTest with json string", "{ \"Key3\": \"Value3\", \"Key4\": \"Value4\" }");       
 
             //Iterate over all headers
             // foreach (var header in req.Headers) //this logs each of the headers... 
@@ -59,8 +49,6 @@ namespace SB_Integration_ComosDB
             //     log.LogInformation($"Header: {header.Key} = {header.Value}");
             //     log.LogTrace("LogTraceTest", "LogTraceTestValue");         //this doesn't seem to be working
             // }
-
-
 
             // using (log.BeginScope(nameValueDictionary))  //doesn't show values
             // {
@@ -79,6 +67,8 @@ namespace SB_Integration_ComosDB
             {
                 callerTrackingId = req.Headers["callerTrackingId"];
             }
+
+            log.LogInformation("callerTrackingId: {callerTrackingId}", callerTrackingId);
 
             //Create a new message
             var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(requestBody));
