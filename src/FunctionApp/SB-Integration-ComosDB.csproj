@@ -5,6 +5,7 @@
     <RootNamespace>SB_Integration_ComosDB</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.10" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.7.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.3" />

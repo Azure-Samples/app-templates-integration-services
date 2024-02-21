@@ -1,0 +1,73 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Initialize_variable": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "CustomProperty1",
+                            "type": "string",
+                            "value": "@{triggerOutputs()?['body'][0].userProperties.customProperty1}\n"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "trackedProperties": {
+                    "callerTrackingId": "@{triggerOutputs()?['body'][0].userProperties.callerTrackingId}"
+                }
+            },
+            "For_each": {
+                "type": "foreach",
+                "foreach": "@triggerOutputs()?['body']",
+                "actions": {
+                    "Create_or_update_item": {
+                        "type": "ServiceProvider",
+                        "inputs": {
+                            "parameters": {
+                                "databaseId": "demo-database",
+                                "containerId": "demo-container",
+                                "item": "@item()?['contentData']",
+                                "isUpsert": true
+                            },
+                            "serviceProviderConfiguration": {
+                                "connectionName": "AzureCosmosDB",
+                                "operationId": "CreateOrUpdateDocument",
+                                "serviceProviderId": "/serviceProviders/AzureCosmosDB"
+                            }
+                        },
+                        "trackedProperties": {
+                            "callerTrackingId": "@{triggerOutputs()?['body'][0].userProperties.callerTrackingId}"
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "SUCCEEDED"
+                    ]
+                }
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "When_messages_are_available_in_a_queue": {
+                "type": "ServiceProvider",
+                "inputs": {
+                    "parameters": {
+                        "queueName": "demo-queue",
+                        "isSessionsEnabled": false
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "serviceBus",
+                        "operationId": "receiveQueueMessages",
+                        "serviceProviderId": "/serviceProviders/serviceBus"
+                    }
+                },
+                "conditions": []
+            }
+        }
+    },
+    "kind": "Stateful"
+}

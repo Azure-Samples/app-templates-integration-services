@@ -1,5 +1,5 @@
-@description('The name of the Function App instance')
-param functionAppName string
+@description('The name of the Logic App instance')
+param logicAppName string
 
 @description('The name of the CosmosDB instance')
 param cosmosAccountName string
@@ -8,33 +8,34 @@ param cosmosAccountName string
 param sbHostName string
 
 param deploymentRepositoryUrl string
-
 param deploymentBranch string
 
 param sbConnString string
 
-resource functionAppInstance 'Microsoft.Web/sites@2021-03-01' existing = {
-  name: functionAppName
+resource logicAppInstance 'Microsoft.Web/sites@2021-03-01' existing = {
+  name: logicAppName
 }
 
 resource cosmosDBInstance 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' existing = {
   name: cosmosAccountName
 }
 
+// resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
+//   name: sbHostName
+// }
+
 var customAppSettings = {
-  CosmosDbConnectionString: cosmosDBInstance.listConnectionStrings().connectionStrings[0].connectionString
+  AzureCosmosDB_connectionString: cosmosDBInstance.listConnectionStrings().connectionStrings[0].connectionString
   SBConnectionString__fullyQualifiedNamespace: sbHostName
-  queueName: 'demo-queue'
-  sbConnString: sbConnString
-  sometest: 'sometestvalue'
+  serviceBus_connectionString: sbConnString
 }
 
-var currentAppSettings = list('${functionAppInstance.id}/config/appsettings', '2021-02-01').properties
+var currentAppSettings = list('${logicAppInstance.id}/config/appsettings', '2021-02-01').properties
 
-module configurFunctionAppSettings './append-function-appsettings.bicep' = {
-  name: '${functionAppName}-appendsettings'
+module configurLogicAppSettings './append-logicapp-appsettings.bicep' = {
+  name: '${logicAppName}-appendsettings'
   params: {
-    functionAppName: functionAppName
+    logicAppName: logicAppName
     currentAppSettings: currentAppSettings
     customAppSettings: customAppSettings
   }
@@ -42,13 +43,13 @@ module configurFunctionAppSettings './append-function-appsettings.bicep' = {
 
 resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
   name: 'web'
-  parent: functionAppInstance
+  parent: logicAppInstance
   properties: {
     repoUrl: deploymentRepositoryUrl
     branch: deploymentBranch
     isManualIntegration: true
   }
   dependsOn: [
-    configurFunctionAppSettings
+    configurLogicAppSettings
   ]
 }
