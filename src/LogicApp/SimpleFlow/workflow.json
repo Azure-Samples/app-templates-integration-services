@@ -2,27 +2,6 @@
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
         "actions": {
-            "Create_or_update_item": {
-                "type": "ServiceProvider",
-                "inputs": {
-                    "parameters": {
-                        "databaseId": "demo-database",
-                        "containerId": "demo-container",
-                        "item": "@triggerBody()?['contentData']",
-                        "isUpsert": true
-                    },
-                    "serviceProviderConfiguration": {
-                        "connectionName": "AzureCosmosDB",
-                        "operationId": "CreateOrUpdateDocument",
-                        "serviceProviderId": "/serviceProviders/AzureCosmosDB"
-                    }
-                },
-                "runAfter": {
-                    "Initialize_variable": [
-                        "SUCCEEDED"
-                    ]
-                }
-            },
             "Initialize_variable": {
                 "type": "InitializeVariable",
                 "inputs": {
@@ -30,11 +9,44 @@
                         {
                             "name": "CustomProperty1",
                             "type": "string",
-                            "value": "@{triggerOutputs()?['body'].userProperties.customProperty1}\n"
+                            "value": "@{triggerOutputs()?['body'][0].userProperties.customProperty1}\n"
                         }
                     ]
                 },
-                "runAfter": {}
+                "runAfter": {},
+                "trackedProperties": {
+                    "callerTrackingId": "@{triggerOutputs()?['body'][0].userProperties.callerTrackingId}"
+                }
+            },
+            "For_each": {
+                "type": "foreach",
+                "foreach": "@triggerOutputs()?['body']",
+                "actions": {
+                    "Create_or_update_item": {
+                        "type": "ServiceProvider",
+                        "inputs": {
+                            "parameters": {
+                                "databaseId": "demo-database",
+                                "containerId": "demo-container",
+                                "item": "@item()?['contentData']",
+                                "isUpsert": true
+                            },
+                            "serviceProviderConfiguration": {
+                                "connectionName": "AzureCosmosDB",
+                                "operationId": "CreateOrUpdateDocument",
+                                "serviceProviderId": "/serviceProviders/AzureCosmosDB"
+                            }
+                        },
+                        "trackedProperties": {
+                            "callerTrackingId": "@{triggerOutputs()?['body'][0].userProperties.callerTrackingId}"
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "SUCCEEDED"
+                    ]
+                }
             }
         },
         "contentVersion": "1.0.0.0",
@@ -53,11 +65,7 @@
                         "serviceProviderId": "/serviceProviders/serviceBus"
                     }
                 },
-                "trackedProperties": {
-                    "customProperty1": "@triggerOutputs()?['body'].userProperties.customProperty1",
-                    "callerTrackingId": "@triggerOutputs()?['body'].userProperties.callerTrackingId"
-                },
-                "splitOn": "@triggerOutputs()?['body']"
+                "conditions": []
             }
         }
     },
