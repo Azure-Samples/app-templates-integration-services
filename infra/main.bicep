@@ -1,8 +1,8 @@
 targetScope = 'subscription'
 
-@minLength(1)
+@minLength(3)
 @maxLength(16)
-@description('Prefix for all resources, i.e. {name}storage')
+@description('Prefix for all resources (3–16 alphanumeric characters and hyphens). Used to construct all resource names, e.g. sb-{name}, apim-{name}.')
 param name string
 
 @minLength(1)
@@ -17,7 +17,7 @@ param publisherEmail string
 @minLength(1)
 param publisherName string
 
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: 'rg-${name}'
   location: location
   tags: {
@@ -29,6 +29,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 module apim './modules/apim.bicep' = {
   name: '${rg.name}-apim'
   scope: rg
+  dependsOn: [servicebus, cosmosdb, function]
   params: {
     apimServiceName: 'apim-${toLower(name)}'
     publisherEmail: publisherEmail
@@ -41,7 +42,7 @@ module servicebus './modules/service-bus.bicep' = {
   name: '${rg.name}-servicebus'
   scope: rg
   params: {
-    nameSpace: 'sb-${toLower(name)}'
+    namespaceName: 'sb-${toLower(name)}'
     location: rg.location
   }
 }
@@ -62,6 +63,17 @@ module function './modules/function.bicep' = {
     appName: 'func-${toLower(name)}'
     location: rg.location
     appInsightsLocation: rg.location
+    deployerPrincipalId: principalId
+  }
+}
+
+module logicApp './modules/logicapp.bicep' = {
+  name: '${rg.name}-logicapp'
+  scope: rg
+  params: {
+    appName: 'logic-${toLower(name)}'
+    location: rg.location
+    appInsightsLocation: rg.location
   }
 }
 
@@ -70,28 +82,48 @@ module roleAssignmentAPIMSenderSB './modules/configure/roleAssign-apim-service-b
   scope: rg
   params: {
     apimServiceName: apim.outputs.apimServiceName
-    sbNameSpace: servicebus.outputs.sbNameSpace
+    sbNamespaceName: servicebus.outputs.sbNamespaceName
   }
-  dependsOn: [
-    apim
-    servicebus
-  ]
 }
 
-module roleAssignmentFcuntionReceiverSB './modules/configure/roleAssign-function-service-bus.bicep' = {
+module roleAssignmentFunctionReceiverSB './modules/configure/roleAssign-function-service-bus.bicep' = {
   name: '${rg.name}-roleAssignmentFunctionSB'
   scope: rg
   params: {
     functionAppName: function.outputs.functionAppName
-    sbNameSpace: servicebus.outputs.sbNameSpace
+    sbNamespaceName: servicebus.outputs.sbNamespaceName
   }
-  dependsOn: [
-    function
-    servicebus
-  ]
 }
 
-module configurFunctionAppSettings './modules/configure/configure-function.bicep' = {
+module roleAssignmentLogicAppReceiverSB './modules/configure/roleAssign-logicapp-service-bus.bicep' = {
+  name: '${rg.name}-roleAssignmentLogicAppSB'
+  scope: rg
+  params: {
+    logicAppName: logicApp.outputs.logicAppName
+    sbNamespaceName: servicebus.outputs.sbNamespaceName
+  }
+}
+
+module roleAssignmentLogicAppCosmosDB './modules/configure/roleAssign-logicapp-cosmosdb.bicep' = {
+  name: '${rg.name}-roleAssignmentLogicAppCosmosDB'
+  scope: rg
+  params: {
+    logicAppName: logicApp.outputs.logicAppName
+    cosmosAccountName: cosmosdb.outputs.cosmosDBAccountName
+  }
+}
+
+module configureLogicAppSettings './modules/configure/configure-logicapp.bicep' = {
+  name: '${rg.name}-configureLogicApp'
+  scope: rg
+  params: {
+    logicAppName: logicApp.outputs.logicAppName
+    cosmosAccountName: cosmosdb.outputs.cosmosDBAccountName
+    sbHostName: servicebus.outputs.sbHostName
+  }
+}
+
+module configureFunctionAppSettings './modules/configure/configure-function.bicep' = {
   name: '${rg.name}-configureFunction'
   scope: rg
   params: {
@@ -99,40 +131,30 @@ module configurFunctionAppSettings './modules/configure/configure-function.bicep
     cosmosAccountName: cosmosdb.outputs.cosmosDBAccountName
     sbHostName: servicebus.outputs.sbHostName
   }
-  dependsOn: [
-    function
-    servicebus
-    cosmosdb
-  ]
 }
 
-module configurAPIM './modules/configure/configure-apim.bicep' = {
+module configureAPIM './modules/configure/configure-apim.bicep' = {
   name: '${rg.name}-configureAPIM'
   scope: rg
   params: {
     apimServiceName: apim.outputs.apimServiceName
     sbEndpoint: servicebus.outputs.sbEndpoint
   }
-  dependsOn: [
-    apim
-  ]
 }
 
-//  Telemetry Deployment
+@description('Principal ID of the deploying user. Automatically populated by azd.')
+param principalId string = ''
+
 @description('Enable usage and telemetry feedback to Microsoft.')
 param enableTelemetry bool = true
-var telemetryId = '69ef933a-eff0-450b-8a46-331cf62e160f-apptemp-${location}'
-resource telemetrydeployment 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry) {
-  name: telemetryId
-  location: location
-  properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#'
-      contentVersion: '1.0.0.0'
-      resources: {}
-    }
+
+module telemetry './modules/telemetry.bicep' = {
+  name: 'telemetry'
+  params: {
+    enableTelemetry: enableTelemetry
+    location: location
   }
+  scope: rg
 }
 
-output apimServideBusOperation string = '${apim.outputs.apimEndpoint}/sb-operations/'
+output apimServiceBusOperation string = '${apim.outputs.apimEndpoint}/sb-operations/'

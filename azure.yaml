@@ -1,0 +1,13 @@
+name: app-templates-integration-services
+metadata:
+  template: azd-init
+
+services:
+  function:
+    project: ./src
+    language: dotnet
+    host: function
+  logicapp:
+    project: ./src/LogicApp
+    language: js
+    host: function

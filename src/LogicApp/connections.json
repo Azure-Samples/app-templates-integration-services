@@ -1,0 +1,29 @@
+{
+  "serviceProviderConnections": {
+    "serviceBus": {
+      "parameterValues": {
+        "fullyQualifiedNamespace": "@appsetting('serviceBus_fullyQualifiedNamespace')"
+      },
+      "serviceProvider": {
+        "id": "/serviceProviders/serviceBus"
+      },
+      "displayName": "SBConnection",
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      }
+    },
+    "AzureCosmosDB": {
+      "parameterValues": {
+        "accountEndpoint": "@appsetting('CosmosDB__accountEndpoint')"
+      },
+      "serviceProvider": {
+        "id": "/serviceProviders/AzureCosmosDB"
+      },
+      "displayName": "CosmosDBConnection",
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      }
+    }
+  },
+  "managedApiConnections": {}
+}

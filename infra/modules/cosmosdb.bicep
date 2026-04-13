@@ -1,4 +1,6 @@
-@description('Cosmos DB account name')
+@description('Cosmos DB account name (3–44 lowercase letters, numbers, and hyphens, must start with a lowercase letter)')
+@minLength(3)
+@maxLength(44)
 param accountName string = 'cosmos-${uniqueString(resourceGroup().id)}'
 
 @description('Location for the Cosmos DB account.')
@@ -10,7 +12,7 @@ param databaseName string = 'demo-database'
 @description('The name for the SQL API container')
 param containerName string = 'demo-container'
 
-resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
+resource account 'Microsoft.DocumentDB/databaseAccounts@2023-11-15' = {
   name: toLower(accountName)
   location: location
   properties: {
@@ -32,7 +34,7 @@ resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
   }
 }
 
-resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15' = {
+resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-11-15' = {
   parent: account
   name: databaseName
   properties: {
@@ -42,7 +44,7 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15
   }
 }
 
-resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
+resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-11-15' = {
   parent: database
   name: containerName
   properties: {

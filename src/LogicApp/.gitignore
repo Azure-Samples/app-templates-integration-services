@@ -1,0 +1,8 @@
+bin
+obj
+local.settings.json
+.debug
+workflow-designtime
+__blobstorage__
+__queuestorage__
+__azurite_db*__.json

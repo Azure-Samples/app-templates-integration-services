@@ -1,59 +1,42 @@
-using System;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
+using System.Text.Json;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
-using System.Threading.Tasks;
 
-namespace SB_Integration_ComosDB
+namespace SB_Integration_CosmosDB
 {
     public class SBtoCosmosDB
     {
-        [FunctionName("SBtoCosmosDB")]
-        public async Task Run([ServiceBusTrigger("demo-queue", Connection = "SBConnectionString")]string myQueueItem,
-            [CosmosDB(
-        databaseName: "demo-database",
-        collectionName: "demo-container",
-        CreateIfNotExists = true,
-        ConnectionStringSetting = "CosmosDbConnectionString")]IAsyncCollector<dynamic> documentsOut,
-            ILogger log)
+        private readonly ILogger<SBtoCosmosDB> _logger;
+
+        public SBtoCosmosDB(ILogger<SBtoCosmosDB> logger)
         {
-            if (IsValidJsonString(myQueueItem, log))
-            {
-                // Add a JSON document to the output container.
-                try
-                {
-                    await documentsOut.AddAsync(myQueueItem);
-                }
-                catch(Exception ex)
-                {
-                    log.LogError($"Failed to process message: {myQueueItem}");
-                    log.LogError($"The message failed with exception : {ex.Message} : Details: {ex.InnerException}");
-                    throw;
-                }
-            }
-            else
-            {
-                log.LogError($"The message failed JSON validation. Please provide valid JSON. : {myQueueItem}");
-                throw new Exception($"Failed to process message: {myQueueItem}");
-            }
-
-            log.LogInformation($"C# ServiceBus queue trigger function processed message: {myQueueItem}");
-
+            _logger = logger;
         }
 
-        private bool IsValidJsonString(string potentialJson, ILogger log)
+        [Function(nameof(SBtoCosmosDB))]
+        [CosmosDBOutput("demo-database", "demo-container", Connection = "CosmosDbConnectionString", CreateIfNotExists = true)]
+        public object? Run(
+            [ServiceBusTrigger("demo-queue", Connection = "SBConnectionString")] string myQueueItem)
+        {
+            if (IsValidJson(myQueueItem))
+            {
+                _logger.LogInformation("C# ServiceBus queue trigger function processed message: {Message}", myQueueItem);
+                return myQueueItem;
+            }
+
+            _logger.LogError("The message failed JSON validation. Please provide valid JSON: {Message}", myQueueItem);
+            throw new InvalidOperationException($"Failed to process message: {myQueueItem}");
+        }
+
+        private bool IsValidJson(string potentialJson)
         {
             try
             {
-                var jsonModel = JObject.Parse(potentialJson);
+                JsonDocument.Parse(potentialJson);
                 return true;
             }
-            catch(JsonReaderException ex)
+            catch (JsonException)
             {
-                log.LogError($"JSON validation failed. Exception : {ex.Message} : Details: {ex.InnerException}");
                 return false;
             }
         }

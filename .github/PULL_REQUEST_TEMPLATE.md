@@ -26,10 +26,10 @@ What kind of change does this Pull Request introduce?
 *  Get the code
 
 ```
-git clone [repo-address]
-cd [repo-name]
+git clone https://github.com/Azure-Samples/app-templates-integration-services.git
+cd app-templates-integration-services
 git checkout [branch-name]
-npm install
+dotnet build src/
 ```
 
 * Test the code

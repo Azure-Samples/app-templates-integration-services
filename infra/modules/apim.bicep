@@ -1,4 +1,6 @@
 @description('The name of the API Management service instance')
+@minLength(1)
+@maxLength(50)
 param apimServiceName string = 'apim-${uniqueString(resourceGroup().id)}'
 
 @description('The email address of the owner of the service')
@@ -27,7 +29,7 @@ param skuCount int = 1
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-resource apiManagementService 'Microsoft.ApiManagement/service@2021-12-01-preview' = {
+resource apiManagementService 'Microsoft.ApiManagement/service@2023-09-01-preview' = {
   name: apimServiceName
   location: location
   sku: {
